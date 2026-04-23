@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Key Generator</title>
+  <title>6‑Digit Key Generator</title>
 
   <style>
     body {
@@ -26,18 +26,34 @@
       padding: 14px 20px;
     }
 
-    p, span {
-      font-size: 22px;
+    #out {
+      font-size: 32px;
+      letter-spacing: 4px;
     }
   </style>
 </head>
 
-<body>
+<body onload="loadCookie()">
 
 <h2>6‑Digit Key Generator</h2>
 
-<input id="in1" placeholder="Input 1 (6 digits)" maxlength="6">
-<input id="in2" placeholder="Input 2 (6 digits)" maxlength="6">
+<!-- Input 1: PASSWORD + COOKIE -->
+<input
+  id="in1"
+  type="password"
+  inputmode="numeric"
+  placeholder="Input 1 (6 digits)"
+  maxlength="6"
+  oninput="saveCookie()"
+>
+
+<!-- Input 2: NORMAL -->
+<input
+  id="in2"
+  inputmode="numeric"
+  placeholder="Input 2 (6 digits)"
+  maxlength="6"
+>
 
 <button onclick="generate()">Generate</button>
 
@@ -45,6 +61,39 @@
 <p><strong><span id="out">------</span></strong></p>
 
 <script>
+// ---------- COOKIE HELPERS ----------
+function setCookie(name, value, days) {
+  const expires = new Date(Date.now() + days * 86400000).toUTCString();
+  document.cookie = name + "=" + encodeURIComponent(value) +
+    "; expires=" + expires + "; path=/";
+}
+
+function getCookie(name) {
+  const cookies = document.cookie.split("; ");
+  for (let c of cookies) {
+    const [k, v] = c.split("=");
+    if (k === name) return decodeURIComponent(v);
+  }
+  return "";
+}
+
+// ---------- LOAD LAST VALUE ----------
+function loadCookie() {
+  const lastIn1 = getCookie("lastInput1");
+  if (lastIn1) {
+    document.getElementById("in1").value = lastIn1;
+  }
+}
+
+// ---------- SAVE ON CHANGE ----------
+function saveCookie() {
+  const val = document.getElementById("in1").value;
+  if (val.length <= 6) {
+    setCookie("lastInput1", val, 365);
+  }
+}
+
+// ---------- KEY LOGIC ----------
 function deriveKey(in1, in2) {
   if (in1.length !== 6 || in2.length !== 6) return "000000";
 
@@ -58,7 +107,11 @@ function deriveKey(in1, in2) {
   let mixed = [];
 
   for (let i = 0; i < 6; i++) {
-    mixed[i] = ((in1.charCodeAt(i) - 48 + in2.charCodeAt(i) - 48 + rot) % 10).toString();
+    mixed[i] = (
+      (in1.charCodeAt(i) - 48 +
+       in2.charCodeAt(i) - 48 +
+       rot) % 10
+    ).toString();
   }
 
   const s = mixed.join("");
@@ -66,11 +119,11 @@ function deriveKey(in1, in2) {
 }
 
 function generate() {
+  const in1 = document.getElementById("in1").value;
+  const in2 = document.getElementById("in2").value;
+
   document.getElementById("out").innerText =
-    deriveKey(
-      document.getElementById("in1").value,
-      document.getElementById("in2").value
-    );
+    deriveKey(in1, in2);
 }
 </script>
 
