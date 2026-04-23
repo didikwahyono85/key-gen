@@ -21,11 +21,6 @@
       margin-bottom: 12px;
     }
 
-    button {
-      font-size: 22px;
-      padding: 14px 20px;
-    }
-
     #out {
       font-size: 32px;
       letter-spacing: 4px;
@@ -33,7 +28,7 @@
   </style>
 </head>
 
-<body onload="loadCookie()">
+<body onload="loadCookieAndUpdate()">
 
 <h2>6‑Digit Key Generator</h2>
 
@@ -44,18 +39,17 @@
   inputmode="numeric"
   placeholder="Input 1 (6 digits)"
   maxlength="6"
-  oninput="saveCookie()"
->
+  oninput="onInputChange()"
+/>
 
-<!-- Input 2: NORMAL -->
+<!-- Input 2 -->
 <input
   id="in2"
   inputmode="numeric"
   placeholder="Input 2 (6 digits)"
   maxlength="6"
->
-
-<button onclick="generate()">Generate</button>
+  oninput="onInputChange()"
+/>
 
 <p>Output:</p>
 <p><strong><span id="out">------</span></strong></p>
@@ -64,7 +58,8 @@
 // ---------- COOKIE HELPERS ----------
 function setCookie(name, value, days) {
   const expires = new Date(Date.now() + days * 86400000).toUTCString();
-  document.cookie = name + "=" + encodeURIComponent(value) +
+  document.cookie =
+    name + "=" + encodeURIComponent(value) +
     "; expires=" + expires + "; path=/";
 }
 
@@ -77,55 +72,18 @@ function getCookie(name) {
   return "";
 }
 
-// ---------- LOAD LAST VALUE ----------
-function loadCookie() {
+// ---------- LOAD COOKIE + AUTO UPDATE ----------
+function loadCookieAndUpdate() {
   const lastIn1 = getCookie("lastInput1");
   if (lastIn1) {
     document.getElementById("in1").value = lastIn1;
   }
+  onInputChange();
 }
 
-// ---------- SAVE ON CHANGE ----------
-function saveCookie() {
-  const val = document.getElementById("in1").value;
-  if (val.length <= 6) {
-    setCookie("lastInput1", val, 365);
-  }
-}
+// ---------- INPUT HANDLER ----------
+function onInputChange() {
+  const in1El = document.getElementById("in1");
+  const in2El = document.getElementById("in2");
 
-// ---------- KEY LOGIC ----------
-function deriveKey(in1, in2) {
-  if (in1.length !== 6 || in2.length !== 6) return "000000";
-
-  let total = 0;
-  for (let i = 0; i < 6; i++) {
-    total += in1.charCodeAt(i) - 48;
-    total += in2.charCodeAt(i) - 48;
-  }
-
-  const rot = total % 6;
-  let mixed = [];
-
-  for (let i = 0; i < 6; i++) {
-    mixed[i] = (
-      (in1.charCodeAt(i) - 48 +
-       in2.charCodeAt(i) - 48 +
-       rot) % 10
-    ).toString();
-  }
-
-  const s = mixed.join("");
-  return s.slice(rot) + s.slice(0, rot);
-}
-
-function generate() {
-  const in1 = document.getElementById("in1").value;
-  const in2 = document.getElementById("in2").value;
-
-  document.getElementById("out").innerText =
-    deriveKey(in1, in2);
-}
-</script>
-
-</body>
-</html>
+  // Enforce digits‑only
