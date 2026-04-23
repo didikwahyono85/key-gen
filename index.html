@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>6‑Digit Key Generator</title>
+  <title>6‑Digit Key Generator 1.0</title>
 
   <style>
     body {
@@ -28,34 +27,30 @@
   </style>
 </head>
 
-<body onload="loadCookieAndUpdate()">
+<body>
 
 <h2>6‑Digit Key Generator</h2>
 
-<!-- Input 1: PASSWORD + COOKIE -->
 <input
   id="in1"
   type="password"
   inputmode="numeric"
   placeholder="Input 1 (6 digits)"
   maxlength="6"
-  oninput="onInputChange()"
 />
 
-<!-- Input 2 -->
 <input
   id="in2"
   inputmode="numeric"
   placeholder="Input 2 (6 digits)"
   maxlength="6"
-  oninput="onInputChange()"
 />
 
 <p>Output:</p>
 <p><strong><span id="out">------</span></strong></p>
 
 <script>
-// ---------- COOKIE HELPERS ----------
+/* ================= COOKIE HELPERS ================= */
 function setCookie(name, value, days) {
   const expires = new Date(Date.now() + days * 86400000).toUTCString();
   document.cookie =
@@ -65,25 +60,69 @@ function setCookie(name, value, days) {
 
 function getCookie(name) {
   const cookies = document.cookie.split("; ");
-  for (let c of cookies) {
+  for (const c of cookies) {
     const [k, v] = c.split("=");
-    if (k === name) return decodeURIComponent(v);
+    if (k === name) return decodeURIComponent(v || "");
   }
   return "";
 }
 
-// ---------- LOAD COOKIE + AUTO UPDATE ----------
-function loadCookieAndUpdate() {
-  const lastIn1 = getCookie("lastInput1");
-  if (lastIn1) {
-    document.getElementById("in1").value = lastIn1;
+/* ================= KEY LOGIC ================= */
+function deriveKey(in1, in2) {
+  let total = 0;
+  for (let i = 0; i < 6; i++) {
+    total += in1.charCodeAt(i) - 48;
+    total += in2.charCodeAt(i) - 48;
   }
-  onInputChange();
+
+  const rot = total % 6;
+  let mixed = "";
+
+  for (let i = 0; i < 6; i++) {
+    mixed += (
+      (in1.charCodeAt(i) - 48 +
+       in2.charCodeAt(i) - 48 +
+       rot) % 10
+    );
+  }
+
+  return mixed.slice(rot) + mixed.slice(0, rot);
 }
 
-// ---------- INPUT HANDLER ----------
-function onInputChange() {
-  const in1El = document.getElementById("in1");
-  const in2El = document.getElementById("in2");
+/* ================= INPUT HANDLER ================= */
+function handleInput() {
+  const in1 = document.getElementById("in1");
+  const in2 = document.getElementById("in2");
 
-  // Enforce digits‑only
+  // Digits only, max 6
+  in1.value = in1.value.replace(/\D/g, "").slice(0, 6);
+  in2.value = in2.value.replace(/\D/g, "").slice(0, 6);
+
+  // Save cookie ONLY when valid
+  if (in1.value.length === 6) {
+    setCookie("lastInput1", in1.value, 365);
+  }
+
+  // Update output only when both valid
+  if (in1.value.length === 6 && in2.value.length === 6) {
+    document.getElementById("out").innerText =
+      deriveKey(in1.value, in2.value);
+  } else {
+    document.getElementById("out").innerText = "------";
+  }
+}
+
+/* ================= INIT ================= */
+document.getElementById("in1").addEventListener("input", handleInput);
+document.getElementById("in2").addEventListener("input", handleInput);
+
+window.onload = () => {
+  const saved = getCookie("lastInput1");
+  if (saved.length === 6) {
+    document.getElementById("in2").value = saved;
+  }
+};
+</script>
+
+</body>
+</html>
