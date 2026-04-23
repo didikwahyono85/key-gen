@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Key Generator</title>
+</head>
+<body>
+
+<h3>6‑Digit Key Generator</h3>
+
+<input id="in1" placeholder="Input 1 (6 digits)" maxlength="6">
+<input id="in2" placeholder="Input 2 (6 digits)" maxlength="6">
+<button onclick="generate()">Generate</button>
+
+<p>Output: <span id="out"></span></p>
+
+<script>
+function deriveKey(in1, in2) {
+  if (in1.length !== 6 || in2.length !== 6) {
+    return "000000";
+  }
+
+  let totalSum = 0;
+  for (let i = 0; i < 6; i++) {
+    totalSum += (in1.charCodeAt(i) - 48);
+    totalSum += (in2.charCodeAt(i) - 48);
+  }
+
+  const rotation = totalSum % 6;
+  let mixed = [];
+
+  for (let i = 0; i < 6; i++) {
+    const d1 = in1.charCodeAt(i) - 48;
+    const d2 = in2.charCodeAt(i) - 48;
+    mixed[i] = ((d1 + d2 + rotation) % 10).toString();
+  }
+
+  const temp = mixed.join("");
+  return temp.slice(rotation) + temp.slice(0, rotation);
+}
+
+function generate() {
+  const in1 = document.getElementById("in1").value;
+  const in2 = document.getElementById("in2").value;
+  document.getElementById("out").innerText = deriveKey(in1, in2);
+}
+</script>
+
+</body>
+</html>
