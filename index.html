@@ -2,47 +2,75 @@
 <html>
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Key Generator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+      padding: 16px;
+    }
+
+    input {
+      font-size: 22px;
+      padding: 12px;
+      width: 100%;
+      max-width: 320px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      font-size: 22px;
+      padding: 14px 20px;
+    }
+
+    p, span {
+      font-size: 22px;
+    }
+  </style>
 </head>
+
 <body>
 
-<h3>6‑Digit Key Generator</h3>
+<h2>6‑Digit Key Generator</h2>
 
 <input id="in1" placeholder="Input 1 (6 digits)" maxlength="6">
 <input id="in2" placeholder="Input 2 (6 digits)" maxlength="6">
+
 <button onclick="generate()">Generate</button>
 
-<p>Output: <span id="out"></span></p>
+<p>Output:</p>
+<p><strong><span id="out">------</span></strong></p>
 
 <script>
 function deriveKey(in1, in2) {
-  if (in1.length !== 6 || in2.length !== 6) {
-    return "000000";
-  }
+  if (in1.length !== 6 || in2.length !== 6) return "000000";
 
-  let totalSum = 0;
+  let total = 0;
   for (let i = 0; i < 6; i++) {
-    totalSum += (in1.charCodeAt(i) - 48);
-    totalSum += (in2.charCodeAt(i) - 48);
+    total += in1.charCodeAt(i) - 48;
+    total += in2.charCodeAt(i) - 48;
   }
 
-  const rotation = totalSum % 6;
+  const rot = total % 6;
   let mixed = [];
 
   for (let i = 0; i < 6; i++) {
-    const d1 = in1.charCodeAt(i) - 48;
-    const d2 = in2.charCodeAt(i) - 48;
-    mixed[i] = ((d1 + d2 + rotation) % 10).toString();
+    mixed[i] = ((in1.charCodeAt(i) - 48 + in2.charCodeAt(i) - 48 + rot) % 10).toString();
   }
 
-  const temp = mixed.join("");
-  return temp.slice(rotation) + temp.slice(0, rotation);
+  const s = mixed.join("");
+  return s.slice(rot) + s.slice(0, rot);
 }
 
 function generate() {
-  const in1 = document.getElementById("in1").value;
-  const in2 = document.getElementById("in2").value;
-  document.getElementById("out").innerText = deriveKey(in1, in2);
+  document.getElementById("out").innerText =
+    deriveKey(
+      document.getElementById("in1").value,
+      document.getElementById("in2").value
+    );
 }
 </script>
 
