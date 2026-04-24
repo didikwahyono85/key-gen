@@ -123,9 +123,9 @@ window.onload = () => {
   if (saved.length === 6) {
     document.getElementById("in1").value = saved;
   }
-  saved = getCookie("lastInput2");
+  const saved2 = getCookie("lastInput2");
   if (saved.length === 6) {
-    document.getElementById("in2").value = saved;
+    document.getElementById("in2").value = saved2;
   }
   if (in1.value.length === 6 && in2.value.length === 6) {
     document.getElementById("out").innerText =
