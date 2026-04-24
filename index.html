@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DDK Key Generator 1.0</title>
+  <title>DDK Key Generator 1.1</title>
 
   <style>
     body {
@@ -29,7 +29,7 @@
 
 <body>
 
-<h2>DDK Key Generator 1.0</h2>
+<h2>DDK Key Generator 1.1</h2>
 
 <input
   id="in1"
@@ -100,7 +100,7 @@ function handleInput() {
 
   // Save cookie ONLY when valid
   if (in1.value.length === 6) {
-    setCookie("lastInput1", in2.value, 365);
+    setCookie("lastInput1", in1.value, 365);
   }
 
   // Update output only when both valid
@@ -119,7 +119,7 @@ document.getElementById("in2").addEventListener("input", handleInput);
 window.onload = () => {
   const saved = getCookie("lastInput1");
   if (saved.length === 6) {
-    document.getElementById("in2").value = saved;
+    document.getElementById("in1").value = saved;
   }
 };
 </script>
